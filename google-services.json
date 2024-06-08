@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "272462693984",
+    "project_id": "veereferee",
+    "storage_bucket": "veereferee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:272462693984:android:71a01669b3e3e24daee505",
+        "android_client_info": {
+          "package_name": "com.example.vieerefereee"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVD3EzRbZBxPtH764QMzA62ETbHdchTjU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

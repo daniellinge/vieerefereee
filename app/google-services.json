@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:272462693984:android:71a01669b3e3e24daee505",
+        "mobilesdk_app_id": "1:272462693984:android:a29993238842d0b2aee505",
         "android_client_info": {
-          "package_name": "com.example.vieerefereee"
+          "package_name": "com.daniel_linge.viewreferee"
         }
       },
       "oauth_client": [],

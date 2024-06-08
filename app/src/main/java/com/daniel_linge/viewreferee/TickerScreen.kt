@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -51,7 +50,7 @@ fun TickerScreen(
     val remainingTime by refereeViewModel.remainingTime.observeAsState("")
     val halfRemainingTime by refereeViewModel.halfRemainingTime.observeAsState("")
     val events by refereeViewModel.eventList.observeAsState(emptyList())
-    val keyboardController = LocalSoftwareKeyboardController.current
+
 
     LaunchedEffect(Unit) {
         refereeViewModel.setHomeTeam(homeTeam)
@@ -150,7 +149,7 @@ fun TickerScreen(
                 onDone = {
                     refereeViewModel.addEvent(Event(0, "Notiz: ${noteText.text}", getCurrentTimeString()))
                     noteText = TextFieldValue("")
-                    keyboardController?.hide() // Tastatur ausblenden
+
                 }
             )
         )

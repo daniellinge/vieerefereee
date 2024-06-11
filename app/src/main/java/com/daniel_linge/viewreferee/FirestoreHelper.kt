@@ -76,10 +76,16 @@ object FirestoreHelper {
             .get()
             .addOnSuccessListener { result ->
                 val count = result.size()
-                onSuccess(count)
+                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                Handler(Looper.getMainLooper()).post {
+                    onSuccess(count)
+                }
             }
             .addOnFailureListener {
-                onFailure()
+                // Verschiebe den Aufruf von onFailure auf den Hauptthread
+                Handler(Looper.getMainLooper()).post {
+                    onFailure()
+                }
             }
     }
     fun fetchRefereeByName(name: String, onSuccess: (Boolean) -> Unit, onFailure: () -> Unit) {

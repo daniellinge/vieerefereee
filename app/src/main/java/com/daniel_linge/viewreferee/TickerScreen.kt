@@ -50,7 +50,7 @@ fun TickerScreen(
     val remainingTime by refereeViewModel.remainingTime.observeAsState("")
     val halfRemainingTime by refereeViewModel.halfRemainingTime.observeAsState("")
     val events by refereeViewModel.eventList.observeAsState(emptyList())
-
+    val currentReferee by refereeViewModel.currentReferee.observeAsState()
 
     LaunchedEffect(Unit) {
         refereeViewModel.setHomeTeam(homeTeam)
@@ -58,12 +58,18 @@ fun TickerScreen(
     }
 
     Column(
+
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    )
+    {
+        currentReferee?.let { referee ->
+        Text("Beobachtung für: ${referee.name} (${referee.id})")
+            Spacer(modifier = Modifier.height(16.dp))
+        }
         Text("Heimmannschaft: $homeTeam")
         Text("Gastmannschaft: $awayTeam")
         Text("Spielstand: $remainingTime")

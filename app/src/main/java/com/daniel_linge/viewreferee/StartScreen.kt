@@ -56,7 +56,9 @@ fun StartScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Neue Beobachtung")
+        currentReferee?.let { referee ->
+            Text("Neue Beobachtung für: ${referee.name} (${referee.id})")
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         currentReferee?.let { referee ->

@@ -47,8 +47,10 @@ fun SummaryScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Zusammenfassung")
+    ) {currentReferee?.let { referee ->
+        Text("Zusammenfassung für: ${referee.name} (ID: ${referee.id})")
+        Spacer(modifier = Modifier.height(16.dp))
+    }
         Spacer(modifier = Modifier.height(16.dp))
 
         Text("Schiedsrichter: ${currentReferee?.name}")

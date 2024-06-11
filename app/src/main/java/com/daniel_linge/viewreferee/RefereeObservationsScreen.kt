@@ -54,7 +54,9 @@ fun RefereeObservationsScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Beobachtungen von ${currentReferee?.name}")
+        currentReferee?.let { referee ->
+            Text("Beobachtungen von: ${referee.name} (${referee.id})")
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         if (isLoading) {

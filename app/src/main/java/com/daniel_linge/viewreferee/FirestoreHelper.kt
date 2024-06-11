@@ -1,10 +1,11 @@
 package com.daniel_linge.viewreferee
 
+import android.os.Handler
+import android.os.Looper
 import com.google.firebase.firestore.FirebaseFirestore
 
 object FirestoreHelper {
     private val db = FirebaseFirestore.getInstance()
-
     fun fetchAllRefereesWithDetails(onSuccess: (List<Referee>) -> Unit, onFailure: () -> Unit) {
         db.collection("referees")
             .get()
@@ -13,7 +14,10 @@ object FirestoreHelper {
                 val documents = result.documents
 
                 if (documents.isEmpty()) {
-                    onSuccess(referees)
+                    // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                    Handler(Looper.getMainLooper()).post {
+                        onSuccess(referees)
+                    }
                     return@addOnSuccessListener
                 }
 
@@ -28,28 +32,43 @@ object FirestoreHelper {
                             processedCount++
 
                             if (processedCount == documents.size) {
-                                onSuccess(referees)
+                                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                                Handler(Looper.getMainLooper()).post {
+                                    onSuccess(referees)
+                                }
                             }
                         }, onFailure = {
                             processedCount++
 
                             if (processedCount == documents.size) {
-                                onSuccess(referees)
+                                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                                Handler(Looper.getMainLooper()).post {
+                                    onSuccess(referees)
+                                }
                             }
                         })
                     } else {
                         processedCount++
 
                         if (processedCount == documents.size) {
-                            onSuccess(referees)
+                            // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                            Handler(Looper.getMainLooper()).post {
+                                onSuccess(referees)
+                            }
                         }
                     }
                 }
             }
             .addOnFailureListener {
-                onFailure()
+                // Verschiebe den Aufruf von onFailure auf den Hauptthread
+                Handler(Looper.getMainLooper()).post {
+                    onFailure()
+                }
             }
     }
+
+
+//
 
     private fun fetchObservationCountForReferee(referee: Referee, onSuccess: (Int) -> Unit, onFailure: () -> Unit) {
         db.collection("observations")
@@ -63,16 +82,21 @@ object FirestoreHelper {
                 onFailure()
             }
     }
-
     fun fetchRefereeByName(name: String, onSuccess: (Boolean) -> Unit, onFailure: () -> Unit) {
         db.collection("referees")
             .whereEqualTo("name", name)
             .get()
             .addOnSuccessListener { result ->
-                onSuccess(!result.isEmpty)
+                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                Handler(Looper.getMainLooper()).post {
+                    onSuccess(!result.isEmpty)
+                }
             }
             .addOnFailureListener {
-                onFailure()
+                // Verschiebe den Aufruf von onFailure auf den Hauptthread
+                Handler(Looper.getMainLooper()).post {
+                    onFailure()
+                }
             }
     }
 
@@ -80,8 +104,18 @@ object FirestoreHelper {
         db.collection("referees")
             .document(referee.id)
             .set(referee)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { onFailure() }
+            .addOnSuccessListener {
+                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                Handler(Looper.getMainLooper()).post {
+                    onSuccess()
+                }
+            }
+            .addOnFailureListener {
+                // Verschiebe den Aufruf von onFailure auf den Hauptthread
+                Handler(Looper.getMainLooper()).post {
+                    onFailure()
+                }
+            }
     }
 
     fun deleteRefereeAndObservations(refereeId: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
@@ -101,11 +135,24 @@ object FirestoreHelper {
                     batch.delete(observationRef)
                 }
                 batch.commit()
-                    .addOnSuccessListener { onSuccess() }
-                    .addOnFailureListener { onFailure() }
+                    .addOnSuccessListener {
+                        // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                        Handler(Looper.getMainLooper()).post {
+                            onSuccess()
+                        }
+                    }
+                    .addOnFailureListener {
+                        // Verschiebe den Aufruf von onFailure auf den Hauptthread
+                        Handler(Looper.getMainLooper()).post {
+                            onFailure()
+                        }
+                    }
             }
             .addOnFailureListener {
-                onFailure()
+                // Verschiebe den Aufruf von onFailure auf den Hauptthread
+                Handler(Looper.getMainLooper()).post {
+                    onFailure()
+                }
             }
     }
 
@@ -124,6 +171,11 @@ object FirestoreHelper {
     }
 
     fun saveObservation(observation: Observation, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        if (observation.refereeId.isBlank()) {
+            onFailure() // Oder eine Fehlermeldung anzeigen
+            return
+        }
+
         db.collection("observations")
             .document(observation.refereeId)
             .set(observation)

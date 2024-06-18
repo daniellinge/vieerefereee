@@ -51,6 +51,8 @@ fun TickerScreen(
     val halfRemainingTime by refereeViewModel.halfRemainingTime.observeAsState("")
     val events by refereeViewModel.eventList.observeAsState(emptyList())
     val currentReferee by refereeViewModel.currentReferee.observeAsState()
+    val homeScore by refereeViewModel.homeScore.observeAsState(0)
+    val awayScore by refereeViewModel.awayScore.observeAsState(0)
 
     LaunchedEffect(Unit) {
         refereeViewModel.setHomeTeam(homeTeam)
@@ -72,7 +74,8 @@ fun TickerScreen(
         }
         Text("Heimmannschaft: $homeTeam")
         Text("Gastmannschaft: $awayTeam")
-        Text("Spielstand: $remainingTime")
+        Text("Spielstand: $homeScore : $awayScore")
+        Text("Restspielzeit: $remainingTime")
 
         Spacer(modifier = Modifier.height(16.dp))
 

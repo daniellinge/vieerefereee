@@ -36,6 +36,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun RefereeCaptureScreen(
@@ -93,7 +95,14 @@ fun RefereeCaptureScreen(
                 ) {
                     Text(referee.name, modifier = Modifier.weight(1f))
                     Text(referee.observationCount.toString(), modifier = Modifier.weight(1f))
-                    Text(referee.lastObservationDate ?: "N/A", modifier = Modifier.weight(1f))
+
+                    val formattedDate = referee.lastObservationDate?.let { date ->
+                        val sdf = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+                        sdf.format(date)
+                    } ?: "N/A"
+
+                    Text(formattedDate, modifier = Modifier.weight(1f))
+
                     IconButton(
                         onClick = {
                             refereeToDelete = referee

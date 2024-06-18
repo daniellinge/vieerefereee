@@ -1,6 +1,7 @@
 package com.daniel_linge.viewreferee
 
 import androidx.annotation.Keep
+import java.util.Date
 
 @Keep
 data class Observation(
@@ -11,10 +12,11 @@ data class Observation(
     val awayTeam: String = "",
     val finalScore: String = "",
     val events: List<Event> = emptyList(),
-    val notes: String = ""
+    val notes: String = "",
+    val timestamp: Date = Date() // Aktuelles Datum und Uhrzeit
 ) {
     // Leerer Konstruktor für Firestore
-    constructor() : this("", "", "", "", "", "", emptyList(), "")
+    constructor() : this("", "", "", "", "", "", emptyList(), "", Date())
 }
 @Keep
 data class Event(

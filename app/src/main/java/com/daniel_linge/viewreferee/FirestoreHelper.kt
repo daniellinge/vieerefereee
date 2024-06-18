@@ -2,19 +2,19 @@ package com.daniel_linge.viewreferee
 
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 
 object FirestoreHelper {
-    private val db = FirebaseFirestore.getInstance()
     fun fetchAllRefereesWithDetails(onSuccess: (List<Referee>) -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
         db.collection("referees")
             .get()
             .addOnSuccessListener { result ->
-                val referees = mutableListOf<Referee>()
-                val documents = result.documents
+                val referees = result.toObjects(Referee::class.java).toMutableList()
 
-                if (documents.isEmpty()) {
-                    // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                if (referees.isEmpty()) {
                     Handler(Looper.getMainLooper()).post {
                         onSuccess(referees)
                     }
@@ -23,101 +23,89 @@ object FirestoreHelper {
 
                 var processedCount = 0
 
-                documents.forEach { document ->
-                    val referee = document.toObject(Referee::class.java)
-                    if (referee != null) {
+                referees.forEach { referee ->
+                    fetchLastObservationDateForReferee(referee.id, onSuccess = { lastObservationDate ->
+                        referee.lastObservationDate = lastObservationDate // Datum setzen
+
                         fetchObservationCountForReferee(referee, onSuccess = { count ->
                             referee.observationCount = count
-                            referees.add(referee)
                             processedCount++
-
-                            if (processedCount == documents.size) {
-                                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                            if (processedCount == referees.size) {
                                 Handler(Looper.getMainLooper()).post {
                                     onSuccess(referees)
                                 }
                             }
                         }, onFailure = {
+                            Log.e("FirestoreHelper", "Error fetching observation count")
                             processedCount++
-
-                            if (processedCount == documents.size) {
-                                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                            if (processedCount == referees.size) {
                                 Handler(Looper.getMainLooper()).post {
                                     onSuccess(referees)
                                 }
                             }
                         })
-                    } else {
+                    }, onFailure = {
+                        Log.e("FirestoreHelper", "Error fetching last observation date")
                         processedCount++
-
-                        if (processedCount == documents.size) {
-                            // Verschiebe den Aufruf von onSuccess auf den Hauptthread
+                        if (processedCount == referees.size) {
                             Handler(Looper.getMainLooper()).post {
                                 onSuccess(referees)
                             }
                         }
-                    }
+                    })
                 }
             }
             .addOnFailureListener {
-                // Verschiebe den Aufruf von onFailure auf den Hauptthread
+                Log.e("FirestoreHelper", "Error fetching referees", it)
                 Handler(Looper.getMainLooper()).post {
                     onFailure()
                 }
             }
     }
-
-
-//
-
     private fun fetchObservationCountForReferee(referee: Referee, onSuccess: (Int) -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
         db.collection("observations")
             .whereEqualTo("refereeId", referee.id)
             .get()
             .addOnSuccessListener { result ->
                 val count = result.size()
-                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
                 Handler(Looper.getMainLooper()).post {
                     onSuccess(count)
                 }
             }
             .addOnFailureListener {
-                // Verschiebe den Aufruf von onFailure auf den Hauptthread
                 Handler(Looper.getMainLooper()).post {
                     onFailure()
                 }
             }
     }
     fun fetchRefereeByName(name: String, onSuccess: (Boolean) -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
         db.collection("referees")
             .whereEqualTo("name", name)
             .get()
             .addOnSuccessListener { result ->
-                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
                 Handler(Looper.getMainLooper()).post {
                     onSuccess(!result.isEmpty)
                 }
             }
             .addOnFailureListener {
-                // Verschiebe den Aufruf von onFailure auf den Hauptthread
                 Handler(Looper.getMainLooper()).post {
                     onFailure()
                 }
             }
     }
-
     fun saveReferee(referee: Referee, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
         db.collection("referees")
             .document(referee.id)
             .set(referee)
             .addOnSuccessListener {
-                // Verschiebe den Aufruf von onSuccess auf den Hauptthread
                 Handler(Looper.getMainLooper()).post {
                     onSuccess()
                 }
             }
             .addOnFailureListener {
-                // Verschiebe den Aufruf von onFailure auf den Hauptthread
                 Handler(Looper.getMainLooper()).post {
                     onFailure()
                 }
@@ -125,13 +113,12 @@ object FirestoreHelper {
     }
 
     fun deleteRefereeAndObservations(refereeId: String, onSuccess: () -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
         val batch = db.batch()
 
-        // Delete referee
         val refereeRef = db.collection("referees").document(refereeId)
         batch.delete(refereeRef)
 
-        // Delete observations
         db.collection("observations")
             .whereEqualTo("refereeId", refereeId)
             .get()
@@ -142,20 +129,17 @@ object FirestoreHelper {
                 }
                 batch.commit()
                     .addOnSuccessListener {
-                        // Verschiebe den Aufruf von onSuccess auf den Hauptthread
                         Handler(Looper.getMainLooper()).post {
                             onSuccess()
                         }
                     }
                     .addOnFailureListener {
-                        // Verschiebe den Aufruf von onFailure auf den Hauptthread
                         Handler(Looper.getMainLooper()).post {
                             onFailure()
                         }
                     }
             }
             .addOnFailureListener {
-                // Verschiebe den Aufruf von onFailure auf den Hauptthread
                 Handler(Looper.getMainLooper()).post {
                     onFailure()
                 }
@@ -163,6 +147,7 @@ object FirestoreHelper {
     }
 
     fun fetchObservations(onSuccess: (List<Observation>) -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
         db.collection("observations")
             .get()
             .addOnSuccessListener { result ->
@@ -176,16 +161,42 @@ object FirestoreHelper {
             }
     }
 
+    private fun fetchLastObservationDateForReferee(refereeId: String, onSuccess: (Date?) -> Unit, onFailure: () -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("referees")
+            .document(refereeId)
+            .get()
+            .addOnSuccessListener { document ->
+                val lastObservationDate = document.getDate("lastObservationDate")
+                Handler(Looper.getMainLooper()).post {
+                    onSuccess(lastObservationDate)
+                }
+            }
+            .addOnFailureListener {
+                Handler(Looper.getMainLooper()).post {
+                    onFailure()
+                }
+            }
+    }
+
+
     fun saveObservation(observation: Observation, onSuccess: () -> Unit, onFailure: () -> Unit) {
         if (observation.refereeId.isBlank()) {
-            onFailure() // Oder eine Fehlermeldung anzeigen
+            onFailure()
             return
         }
 
+        val db = FirebaseFirestore.getInstance()
+
         db.collection("observations")
-            .document(observation.refereeId)
-            .set(observation)
-            .addOnSuccessListener { onSuccess() }
+            .add(observation)
+            .addOnSuccessListener { _ ->
+                db.collection("referees")
+                    .document(observation.refereeId)
+                    .update("lastObservationDate", observation.timestamp)
+                    .addOnSuccessListener { onSuccess() }
+                    .addOnFailureListener { onFailure() }
+            }
             .addOnFailureListener { onFailure() }
-    }
+        }
 }

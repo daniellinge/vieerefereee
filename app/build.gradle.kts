@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.application") version "8.4.2"
+    id("com.android.application") version "8.5.0"
     id("org.jetbrains.kotlin.android") version "1.9.0"
     id("com.google.gms.google-services") version "4.3.14"
 }
@@ -12,8 +12,8 @@ android {
         applicationId = "com.daniel_linge.viewreferee"
         minSdk = 21
         targetSdk = 34 // Aktualisiere auf die neueste Version
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

@@ -22,10 +22,10 @@ class RefereeViewModel : ViewModel() {
     private val _awayTeam = MutableLiveData<String>()
     val awayTeam: LiveData<String> get() = _awayTeam
 
-    private val _homeScore = MutableLiveData<Int>()
+    private val _homeScore = MutableLiveData(0)
     val homeScore: LiveData<Int> get() = _homeScore
 
-    private val _awayScore = MutableLiveData<Int>()
+    private val _awayScore = MutableLiveData(0)
     val awayScore: LiveData<Int> get() = _awayScore
 
     private val _remainingTime = MutableLiveData<String>()
